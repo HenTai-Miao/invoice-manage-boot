@@ -50,9 +50,9 @@ import java.util.*;
 @AllArgsConstructor
 public class OssServiceImpl implements IOssService {
 
-    private MinioClient minioClient;
+    private final MinioClient minioClient;
 
-    private OssMinioConstant ossMinioConstant;
+    private final OssMinioConstant ossMinioConstant;
 
     private final IInvoiceInfoService IInvoiceInfoService;
 

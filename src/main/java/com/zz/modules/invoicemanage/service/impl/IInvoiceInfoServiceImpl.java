@@ -14,8 +14,10 @@ import com.zz.modules.invoicemanage.request.QueryListRequest;
 import com.zz.modules.invoicemanage.response.QueryListResponse;
 import com.zz.modules.invoicemanage.service.IInvoiceInfoService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class IInvoiceInfoServiceImpl extends ServiceImpl<InvoiceInfoMapper, InvoiceInfoEntity> implements IInvoiceInfoService {

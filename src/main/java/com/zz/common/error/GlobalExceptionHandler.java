@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ServiceException.class)
     public R<Void> handleServiceException(ServiceException e) {
-        log.error("业务异常: ", e);
+        log.error("[业务异常] 异常信息: {}, 异常码: {}", e.getMessage(), e.getCode(), e);
         if (e.getCode() != 0) {
             return R.failure(e.getCode(), e.getMessage());
         }
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("参数验证异常: ", e);
+        log.error("[参数验证异常] 异常信息: ", e);
         BindingResult bindingResult = e.getBindingResult();
         StringBuilder errorMsg = new StringBuilder();
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public R<Void> handleBindException(BindException e) {
-        log.error("参数绑定异常: ", e);
+        log.error("[参数绑定异常] 异常信息: ", e);
         BindingResult bindingResult = e.getBindingResult();
         StringBuilder errorMsg = new StringBuilder();
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public R<Void> handleException(Exception e) {
-        log.error("系统异常: ", e);
-        return R.failure(ResultCode.SYSTEM_ERROR);
+        log.error("[系统异常] 未捕获的异常类型: {}, 异常信息: ", e.getClass().getSimpleName(), e);
+        return R.failure(ResultCode.SYSTEM_ERROR, "系统错误");
     }
 }

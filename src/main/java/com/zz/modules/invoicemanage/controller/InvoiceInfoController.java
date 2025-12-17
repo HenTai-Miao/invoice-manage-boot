@@ -8,7 +8,6 @@ import com.zz.modules.invoicemanage.request.QueryListRequest;
 import com.zz.modules.invoicemanage.response.QueryListResponse;
 import com.zz.modules.invoicemanage.service.IInvoiceInfoService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,7 +21,6 @@ import javax.validation.Valid;
  * Time：10:30
  * ================================
  */
-@Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping(AppConstant.APPLICATION_INVOICE_MANAGE_NAME + "/invoice")

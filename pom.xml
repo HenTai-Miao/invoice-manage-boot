@@ -110,6 +110,7 @@
                 <configuration>
                     <mainClass>com.zz.InvoiceManageApplication</mainClass>
                     <skip>false</skip>
+                    <finalName>invoice-manage</finalName>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,29 +1,14 @@
 spring:
+  profiles:
+    active: dev
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/invoice-manage?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
 
 server:
   tomcat:
     max-swallow-size: 10MB
-
-logging:
-  config: classpath:log/logback-spring.xml
-
-oss:
-  minio:
-    endpoint: http://127.0.0.1:9090
-    access-key: minioadmin
-    secret-key: minioadmin
-    bucket-name: test
-    file-path: upload/
-    download-path: http://10.8.0.10:8080/zz-resource/oss/endpoint/download?filePath=
 
 # MyBatis-Plus配置
 mybatis-plus:
@@ -36,13 +21,15 @@ mybatis-plus:
     # 开启缓存
     cache-enabled: true
     # 指定日志输出方式
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    # 显示SQL语句
+    log-prefix: ""
   
   # 配置mapper.xml文件路径
   mapper-locations: classpath*:mapper/**/*.xml
   
   # 配置实体类的别名包
-  type-aliases-package: com.zz.modules.invoicemanage.entity
+  type-aliases-package: com.zz.**.entity
   
   # 全局配置
   global-config:
@@ -57,3 +44,8 @@ mybatis-plus:
       logic-delete-value: 1
       # 逻辑未删除值
       logic-not-delete-value: 0
+
+logging:
+  level:
+    org.springframework.boot.autoconfigure: INFO
+    org.springframework.boot.autoconfigure.condition: INFO
