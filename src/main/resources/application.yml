@@ -36,8 +36,6 @@ mybatis-plus:
     db-config:
       # 主键策略
       id-type: ASSIGN_ID
-      # 表名前缀
-      table-prefix: tb_
       # 逻辑删除字段
       logic-delete-field: is_deleted
       # 逻辑删除值

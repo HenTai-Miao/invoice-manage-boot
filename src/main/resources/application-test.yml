@@ -1,20 +1,9 @@
 spring:
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://192.168.88.100:3306/invoice-manage?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
     username: root
     password: 123456
-
-server:
-  tomcat:
-    max-swallow-size: 10MB
-
-logging:
-  config: classpath:log/logback-test.xml
 
 oss:
   minio:
@@ -25,37 +14,5 @@ oss:
     file-path: upload/
     download-path: http://192.168.88.100:8080/zz-resource/oss/endpoint/download?filePath=
 
-# MyBatis-Plus配置
-mybatis-plus:
-  # 驼峰命名规则映射配置
-  configuration:
-    # 开启驼峰命名规则映射
-    map-underscore-to-camel-case: true
-    # 开启自动映射
-    auto-mapping-behavior: PARTIAL
-    # 开启缓存
-    cache-enabled: true
-    # 指定日志输出方式
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
-    # 显示SQL语句
-    log-prefix: ""
-  
-  # 配置mapper.xml文件路径
-  mapper-locations: classpath*:mapper/**/*.xml
-  
-  # 配置实体类的别名包
-  type-aliases-package: com.zz.modules.invoicemanage.entity
-  
-  # 全局配置
-  global-config:
-    db-config:
-      # 主键策略
-      id-type: ASSIGN_ID
-      # 表名前缀
-      table-prefix: tb_
-      # 逻辑删除字段
-      logic-delete-field: is_deleted
-      # 逻辑删除值
-      logic-delete-value: 1
-      # 逻辑未删除值
-      logic-not-delete-value: 0
+logging:
+  config: classpath:log/logback-test.xml
