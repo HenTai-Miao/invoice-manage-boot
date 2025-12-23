@@ -5,7 +5,12 @@ import com.zz.modules.invoicemanage.entity.InvoiceInfoEntity;
 import com.zz.modules.invoicemanage.response.QueryListResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**
@@ -46,9 +51,10 @@ public interface InvoiceInfoConverter {
         entity.setSellerTelNum(getValue(tags, InvoiceInfoConstant.SELLER_TEL_NUM));
         entity.setSellerBankName(getValue(tags, InvoiceInfoConstant.SELLER_BANK_NAME));
         entity.setSellerBankAccNum(getValue(tags, InvoiceInfoConstant.SELLER_BANK_ACC_NUM));
-        entity.setTotalAmWithoutTax(getValue(tags, InvoiceInfoConstant.TOTAL_AM_WITHOUT_TAX));
-        entity.setTotalTaxAm(getValue(tags, InvoiceInfoConstant.TOTAL_TAX_AM));
-        entity.setRequestTime(getValue(tags, InvoiceInfoConstant.REQUEST_TIME));
+        entity.setTotalAmWithoutTax(new BigDecimal(getValue(tags, InvoiceInfoConstant.TOTAL_AM_WITHOUT_TAX)));
+        entity.setTotalTaxAm(new BigDecimal(getValue(tags, InvoiceInfoConstant.TOTAL_TAX_AM)));
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        entity.setRequestTime(LocalDateTime.parse(getValue(tags, InvoiceInfoConstant.REQUEST_TIME), dateTimeFormatter));
         entity.setRemark(getValue(tags, InvoiceInfoConstant.REMARK));
 
         // 可以根据需要设置其他字段的默认值

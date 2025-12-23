@@ -1,6 +1,10 @@
 package com.zz.modules.invoicemanage.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @author 韦笑迎
@@ -95,32 +99,33 @@ public class QueryListResponse {
     /**
      * XML文件ID
      */
-    private Long xmlFileId;
+    private String xmlFilePath;
 
     /**
      * PDF文件ID
      */
-    private Long pdfFileId;
+    private String pdfFilePath;
 
     /**
      * OFD文件ID
      */
-    private Long ofdFileId;
+    private String ofdFilePath;
 
     /**
      * 请求时间
      */
-    private String requestTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime requestTime;
 
     /**
      * 金额合计
      */
-    private String totalAmWithoutTax;
+    private BigDecimal totalAmWithoutTax;
 
     /**
      * 税额合计
      */
-    private String totalTaxAm;
+    private BigDecimal totalTaxAm;
 
     /**
      * 备注

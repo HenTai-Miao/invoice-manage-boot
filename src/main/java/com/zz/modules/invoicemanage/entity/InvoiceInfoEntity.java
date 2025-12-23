@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -105,34 +106,34 @@ public class InvoiceInfoEntity {
     private String sellerBankAccNum;
 
     /**
-     * XML文件ID
+     * xml文件 minio路径
      */
-    private Long xmlFileId;
+    private String xmlFilePath;
 
     /**
-     * PDF文件ID
+     * pdf文件 minio路径
      */
-    private Long pdfFileId;
+    private String pdfFilePath;
 
     /**
-     * OFD文件ID
+     * ofd文件 minio路径
      */
-    private Long ofdFileId;
+    private String ofdFilePath;
 
     /**
      * 金额合计
      */
-    private String totalAmWithoutTax;
+    private BigDecimal totalAmWithoutTax;
 
     /**
      * 税额合计
      */
-    private String totalTaxAm;
+    private BigDecimal totalTaxAm;
 
     /**
      * 开票日期
      */
-    private String requestTime;
+    private LocalDateTime requestTime;
 
     /**
      * 备注

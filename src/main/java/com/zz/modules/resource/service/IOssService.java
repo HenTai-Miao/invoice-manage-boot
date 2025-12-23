@@ -19,4 +19,6 @@ public interface IOssService {
     void downloadFile(String filePath, HttpServletResponse response);
 
     AttachEntity detail(Long id);
+
+    AttachEntity detailByName(String fileName);
 }

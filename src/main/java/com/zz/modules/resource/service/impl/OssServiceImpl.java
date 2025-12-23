@@ -3,6 +3,7 @@ package com.zz.modules.resource.service.impl;
 import cn.hutool.core.util.IdcardUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zz.common.constant.InvoiceInfoConstant;
 import com.zz.common.constant.OssMinioConstant;
 import com.zz.common.error.ServiceException;
@@ -81,9 +82,9 @@ public class OssServiceImpl implements IOssService {
                     tempDir
             );
             AttachEntity attachEntity;
-            Long xmlFileId;
-            Long pdfFileId = null;
-            Long ofdFileId = null;
+            String xmlFileKey;
+            String pdfFileKey = null;
+            String ofdFileKey = null;
             // 处理每个文件组
             for (FileGroupInfo fileGroup : fileGroups) {
                 boolean isExists = IInvoiceInfoService.isExists(fileGroup.getBaseName());
@@ -96,16 +97,16 @@ public class OssServiceImpl implements IOssService {
                     // 为每组创建独立的文件key映射
                     // 上传XML文件
                     attachEntity = putFile(fileGroup.getXmlFilePath());
-                    xmlFileId = attachEntity.getId();
+                    xmlFileKey = attachEntity.getName();
                     // 上传PDF文件（如果存在）
                     if (fileGroup.hasPdf()) {
                         attachEntity = putFile(fileGroup.getPdfFilePath());
-                        pdfFileId = attachEntity.getId();
+                        pdfFileKey = attachEntity.getName();
                     }
                     // 上传OFD文件（如果存在）
                     if (fileGroup.hasOfd()) {
                         attachEntity = putFile(fileGroup.getOfdFilePath());
-                        ofdFileId = attachEntity.getId();
+                        ofdFileKey = attachEntity.getName();
                     }
                     // 解析XML内容并保存发票信息
                     String xmlContent = new String(Files.readAllBytes(Paths.get(fileGroup.getXmlFilePath())), StandardCharsets.UTF_8);
@@ -133,12 +134,12 @@ public class OssServiceImpl implements IOssService {
                     invoiceInfoEntity.setTaxpayerType(taxpayerType);
                     // 设置项目信息
                     invoiceInfoEntity.setIssuItemInformation(JSON.toJSONString(items));
-                    // 设置XML文件ID
-                    invoiceInfoEntity.setXmlFileId(xmlFileId);
-                    // 设置PDF文件ID
-                    invoiceInfoEntity.setPdfFileId(pdfFileId);
-                    // 设置OFD文件ID
-                    invoiceInfoEntity.setOfdFileId(ofdFileId);
+                    // 设置xml文件 minio路径
+                    invoiceInfoEntity.setXmlFilePath(xmlFileKey);
+                    // 设置pdf文件 minio路径
+                    invoiceInfoEntity.setPdfFilePath(pdfFileKey);
+                    // 设置ofd文件 minio路径
+                    invoiceInfoEntity.setOfdFilePath(ofdFileKey);
                     IInvoiceInfoService.save(invoiceInfoEntity);
                 }
             }
@@ -297,5 +298,15 @@ public class OssServiceImpl implements IOssService {
     @Override
     public AttachEntity detail(Long id) {
         return attachMapper.selectById(id);
+    }
+
+    @Override
+    public AttachEntity detailByName(String fileName) {
+        AttachEntity attachEntity = attachMapper.selectOne(Wrappers.<AttachEntity>lambdaQuery()
+                .eq(AttachEntity::getName, fileName));
+        if (ObjectUtil.isEmpty(attachEntity)) {
+            throw new ServiceException("文件获取失败");
+        }
+        return attachEntity;
     }
 }

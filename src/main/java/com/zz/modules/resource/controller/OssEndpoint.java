@@ -55,4 +55,12 @@ public class OssEndpoint {
     public R<AttachEntity> detail(@RequestParam Long id) {
         return R.data(ossService.detail(id));
     }
+
+    /**
+     * 获取文件详情
+     */
+    @GetMapping("/detail-by-name")
+    public R<AttachEntity> detailByName(@RequestParam String fileName) {
+        return R.data(ossService.detailByName(fileName));
+    }
 }
