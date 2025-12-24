@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * ================================
  */
 @Data
-@TableName("zz_attach")
+//@TableName("zz_attach")
 public class AttachEntity {
     /**
      * 主键

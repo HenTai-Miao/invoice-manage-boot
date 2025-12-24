@@ -20,5 +20,5 @@ public class OssMinioConstant {
     private String secretKey;
     private String bucketName;
     private String filePath;
-    private String downloadPath;
+//    private String downloadPath;
 }

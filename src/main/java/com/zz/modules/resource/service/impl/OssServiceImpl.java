@@ -81,7 +81,6 @@ public class OssServiceImpl implements IOssService {
                     file.getInputStream(),
                     tempDir
             );
-            AttachEntity attachEntity;
             String xmlFileKey;
             String pdfFileKey = null;
             String ofdFileKey = null;
@@ -96,17 +95,14 @@ public class OssServiceImpl implements IOssService {
                 if (fileGroup.hasXml()) {
                     // 为每组创建独立的文件key映射
                     // 上传XML文件
-                    attachEntity = putFile(fileGroup.getXmlFilePath());
-                    xmlFileKey = attachEntity.getName();
+                    xmlFileKey = putFile(fileGroup.getXmlFilePath());
                     // 上传PDF文件（如果存在）
                     if (fileGroup.hasPdf()) {
-                        attachEntity = putFile(fileGroup.getPdfFilePath());
-                        pdfFileKey = attachEntity.getName();
+                        pdfFileKey = putFile(fileGroup.getPdfFilePath());
                     }
                     // 上传OFD文件（如果存在）
                     if (fileGroup.hasOfd()) {
-                        attachEntity = putFile(fileGroup.getOfdFilePath());
-                        ofdFileKey = attachEntity.getName();
+                        ofdFileKey = putFile(fileGroup.getOfdFilePath());
                     }
                     // 解析XML内容并保存发票信息
                     String xmlContent = new String(Files.readAllBytes(Paths.get(fileGroup.getXmlFilePath())), StandardCharsets.UTF_8);
@@ -166,38 +162,38 @@ public class OssServiceImpl implements IOssService {
     @Override
     public void downloadFile(String filePath, HttpServletResponse response) {
 
-        String fileKey = filePath.replace(ossMinioConstant.getDownloadPath(), "");
-        try {
-            // 从MinIO获取文件流
-            InputStream inputStream = minioClient.getObject(
-                    GetObjectArgs.builder()
-                            .bucket(ossMinioConstant.getBucketName())
-                            .object(fileKey)
-                            .build()
-            );
-
-            // 设置响应头
-            String fileName = fileKey.substring(fileKey.lastIndexOf("/") + 1);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-
-            // 将文件流写入响应
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                response.getOutputStream().write(buffer, 0, bytesRead);
-            }
-
-            response.getOutputStream().flush();
-            inputStream.close();
-        } catch (Exception e) {
-            log.error("下载文件时出错: ", e);
-            try {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "下载文件时出错: " + e.getMessage());
-            } catch (IOException ioException) {
-                log.error("发送错误响应时出错: ", ioException);
-            }
-        }
+//        String fileKey = filePath.replace(ossMinioConstant.getDownloadPath(), "");
+//        try {
+//            // 从MinIO获取文件流
+//            InputStream inputStream = minioClient.getObject(
+//                    GetObjectArgs.builder()
+//                            .bucket(ossMinioConstant.getBucketName())
+//                            .object(fileKey)
+//                            .build()
+//            );
+//
+//            // 设置响应头
+//            String fileName = fileKey.substring(fileKey.lastIndexOf("/") + 1);
+//            response.setContentType("application/octet-stream");
+//            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+//
+//            // 将文件流写入响应
+//            byte[] buffer = new byte[1024];
+//            int bytesRead;
+//            while ((bytesRead = inputStream.read(buffer)) != -1) {
+//                response.getOutputStream().write(buffer, 0, bytesRead);
+//            }
+//
+//            response.getOutputStream().flush();
+//            inputStream.close();
+//        } catch (Exception e) {
+//            log.error("下载文件时出错: ", e);
+//            try {
+//                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "下载文件时出错: " + e.getMessage());
+//            } catch (IOException ioException) {
+//                log.error("发送错误响应时出错: ", ioException);
+//            }
+//        }
     }
 
     /**
@@ -207,36 +203,36 @@ public class OssServiceImpl implements IOssService {
      * @return 文件key
      */
     @SneakyThrows
-    private AttachEntity putFile(String filePath) {
+    private String putFile(String filePath) {
         // 获取文件扩展名
         String fileExtension = getFileExtension(filePath);
         // 生成日期前缀
         String datePrefix = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
         // 生成对象名称（带日期前缀）
-        String objectName = ossMinioConstant.getFilePath() + datePrefix + "/" + UUID.randomUUID().toString() + "." + fileExtension;
+        String fileKey = ossMinioConstant.getFilePath() + datePrefix + "/" + UUID.randomUUID().toString() + "." + fileExtension;
 
         // 上传文件 - ensure FileInputStream is properly closed
         try (FileInputStream fis = new FileInputStream(filePath)) {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(ossMinioConstant.getBucketName())
-                            .object(objectName)
+                            .object(fileKey)
                             .stream(fis, Files.size(Paths.get(filePath)), -1)
                             .build()
             );
         }
-        int lastBackslashIndex = filePath.lastIndexOf("\\");
-        String originalFileName = filePath.substring(lastBackslashIndex + 1);
-        AttachEntity attachEntity = new AttachEntity();
-        attachEntity.setLink(ossMinioConstant.getDownloadPath() + "/" + objectName);
-        attachEntity.setName(objectName);
-        attachEntity.setOriginalName(originalFileName);
-        attachEntity.setExtension(fileExtension);
-//        attachEntity.setAttachSize(String.valueOf(Files.size(Paths.get(filePath))));
-        attachMapper.insert(attachEntity);
+//        int lastBackslashIndex = filePath.lastIndexOf("\\");
+//        String originalFileName = filePath.substring(lastBackslashIndex + 1);
+//        AttachEntity attachEntity = new AttachEntity();
+//        attachEntity.setLink(ossMinioConstant.getDownloadPath() + "/" + objectName);
+//        attachEntity.setName(objectName);
+//        attachEntity.setOriginalName(originalFileName);
+//        attachEntity.setExtension(fileExtension);
+////        attachEntity.setAttachSize(String.valueOf(Files.size(Paths.get(filePath))));
+//        attachMapper.insert(attachEntity);
         // 返回文件key而不是下载URL
-        return attachEntity;
+        return fileKey;
     }
 
     /**
