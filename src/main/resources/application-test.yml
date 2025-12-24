@@ -1,16 +1,16 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.88.100:3306/invoice-manage?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
-    username: remote
-    password: 123456
+    url: jdbc:mysql://10.141.24.153:4000/hnzb_invoice_dev?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+    username: hnzb_invoice
+    password: cU9@sV3wV5gZ7_
 
 oss:
   minio:
-    endpoint: http://192.168.88.100:9000
-    access-key: minioadmin
-    secret-key: minioadmin
-    bucket-name: test
+    endpoint: http://10.141.24.152:9000
+    access-key: YaRcWTxEyBH1aB3EyX2q
+    secret-key: jIzzeFoiDKKMNrWkxldklfvwAllzrhbuceGp5L5K
+    bucket-name: hnzb-invoice
     file-path: upload/
 #    download-path: http://192.168.88.100:8080/zz-resource/oss/endpoint/download?filePath=
 

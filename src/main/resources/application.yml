@@ -1,3 +1,8 @@
+server:
+  port: 8083
+  tomcat:
+    max-swallow-size: 10MB
+
 spring:
   profiles:
     active: dev
@@ -5,10 +10,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
-server:
-  tomcat:
-    max-swallow-size: 10MB
 
 # MyBatis-Plus配置
 mybatis-plus:
