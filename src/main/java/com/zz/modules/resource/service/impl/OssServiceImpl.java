@@ -95,14 +95,14 @@ public class OssServiceImpl implements IOssService {
                 if (fileGroup.hasXml()) {
                     // 为每组创建独立的文件key映射
                     // 上传XML文件
-                    xmlFileKey = putFile(fileGroup.getXmlFilePath());
+                    xmlFileKey = putFile(fileGroup.getXmlFilePath(), fileGroup.getXmlOriginalFileName());
                     // 上传PDF文件（如果存在）
                     if (fileGroup.hasPdf()) {
-                        pdfFileKey = putFile(fileGroup.getPdfFilePath());
+                        pdfFileKey = putFile(fileGroup.getPdfFilePath(), fileGroup.getPdfOriginalFileName());
                     }
                     // 上传OFD文件（如果存在）
                     if (fileGroup.hasOfd()) {
-                        ofdFileKey = putFile(fileGroup.getOfdFilePath());
+                        ofdFileKey = putFile(fileGroup.getOfdFilePath(), fileGroup.getOfdOriginalFileName());
                     }
                     // 解析XML内容并保存发票信息
                     String xmlContent = new String(Files.readAllBytes(Paths.get(fileGroup.getXmlFilePath())), StandardCharsets.UTF_8);
@@ -203,14 +203,12 @@ public class OssServiceImpl implements IOssService {
      * @return 文件key
      */
     @SneakyThrows
-    private String putFile(String filePath) {
-        // 获取文件扩展名
-        String fileExtension = getFileExtension(filePath);
+    private String putFile(String filePath, String fileName) {
         // 生成日期前缀
         String datePrefix = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
         // 生成对象名称（带日期前缀）
-        String fileKey = ossMinioConstant.getFilePath() + datePrefix + "/" + UUID.randomUUID().toString() + "." + fileExtension;
+        String fileKey = datePrefix + "/" + fileName;
 
         // 上传文件 - ensure FileInputStream is properly closed
         try (FileInputStream fis = new FileInputStream(filePath)) {
@@ -222,15 +220,6 @@ public class OssServiceImpl implements IOssService {
                             .build()
             );
         }
-//        int lastBackslashIndex = filePath.lastIndexOf("\\");
-//        String originalFileName = filePath.substring(lastBackslashIndex + 1);
-//        AttachEntity attachEntity = new AttachEntity();
-//        attachEntity.setLink(ossMinioConstant.getDownloadPath() + "/" + objectName);
-//        attachEntity.setName(objectName);
-//        attachEntity.setOriginalName(originalFileName);
-//        attachEntity.setExtension(fileExtension);
-////        attachEntity.setAttachSize(String.valueOf(Files.size(Paths.get(filePath))));
-//        attachMapper.insert(attachEntity);
         // 返回文件key而不是下载URL
         return fileKey;
     }

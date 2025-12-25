@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 /**
  * ZIP文件处理工具类
@@ -584,12 +585,27 @@ public class ZipUtils {
                     switch (extension) {
                         case "xml":
                             fileGroup.setXmlFilePath(filePath.toString());
+                            // 初始化原始文件名映射并记录XML原始文件名
+                            if (fileGroup.getOriginalFileNames() == null) {
+                                fileGroup.setOriginalFileNames(new HashMap<>());
+                            }
+                            fileGroup.getOriginalFileNames().put("xml", entryName);
                             break;
                         case "pdf":
                             fileGroup.setPdfFilePath(filePath.toString());
+                            // 记录PDF原始文件名
+                            if (fileGroup.getOriginalFileNames() == null) {
+                                fileGroup.setOriginalFileNames(new HashMap<>());
+                            }
+                            fileGroup.getOriginalFileNames().put("pdf", entryName);
                             break;
                         case "ofd":
                             fileGroup.setOfdFilePath(filePath.toString());
+                            // 记录OFD原始文件名
+                            if (fileGroup.getOriginalFileNames() == null) {
+                                fileGroup.setOriginalFileNames(new HashMap<>());
+                            }
+                            fileGroup.getOriginalFileNames().put("ofd", entryName);
                             break;
                     }
                 }

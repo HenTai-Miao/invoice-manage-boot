@@ -19,6 +19,4 @@ public class OssMinioConstant {
     private String accessKey;
     private String secretKey;
     private String bucketName;
-    private String filePath;
-//    private String downloadPath;
 }

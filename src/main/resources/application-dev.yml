@@ -11,8 +11,6 @@ oss:
     access-key: minioadmin
     secret-key: minioadmin
     bucket-name: test
-    file-path: upload/
-#    download-path: http://127.0.0.1:8080/zz-resource/oss/endpoint/download?filePath=
 
 logging:
   config: classpath:log/logback-dev.xml
