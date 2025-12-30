@@ -7,7 +7,7 @@ spring:
 
 oss:
   minio:
-    endpoint: http://10.141.24.152:9001
+    endpoint: http://10.141.24.152:9000
     access-key: YaRcWTxEyBH1aB3EyX2q
     secret-key: jIzzeFoiDKKMNrWkxldklfvwAllzrhbuceGp5L5K
     bucket-name: hnzb-invoice
