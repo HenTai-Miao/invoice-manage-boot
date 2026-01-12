@@ -51,7 +51,8 @@ public interface InvoiceInfoConverter {
         entity.setSellerTelNum(getValue(tags, InvoiceInfoConstant.SELLER_TEL_NUM));
         entity.setSellerBankName(getValue(tags, InvoiceInfoConstant.SELLER_BANK_NAME));
         entity.setSellerBankAccNum(getValue(tags, InvoiceInfoConstant.SELLER_BANK_ACC_NUM));
-        entity.setTotalAmWithoutTax(new BigDecimal(getValue(tags, InvoiceInfoConstant.TOTAL_AM_WITHOUT_TAX)));
+//        entity.setTotalAmWithoutTax(new BigDecimal(getValue(tags, InvoiceInfoConstant.TOTAL_AM_WITHOUT_TAX)));
+        entity.setTotalAmWithoutTax(new BigDecimal(getValue(tags, InvoiceInfoConstant.TOTAL_TAX_INCLUDED_AMOUNT)));
         entity.setTotalTaxAm(new BigDecimal(getValue(tags, InvoiceInfoConstant.TOTAL_TAX_AM)));
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         entity.setRequestTime(LocalDateTime.parse(getValue(tags, InvoiceInfoConstant.REQUEST_TIME), dateTimeFormatter));
