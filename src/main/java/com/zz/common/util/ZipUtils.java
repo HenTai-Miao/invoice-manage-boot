@@ -1,5 +1,6 @@
 package com.zz.common.util;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.zz.modules.invoicemanage.request.dto.ExtractedFileInfo;
 import com.zz.modules.invoicemanage.request.dto.FileGroupInfo;
 
@@ -498,11 +499,13 @@ public class ZipUtils {
         
         for (Charset charset : charsetsToTry) {
             try {
-                List<FileGroupInfo> result = extractFileGroupsWithCharset(new ByteArrayInputStream(zipData), destDirectory, charset);
+                List<FileGroupInfo> fileGroupInfoList = extractFileGroupsWithCharset(new ByteArrayInputStream(zipData), destDirectory, charset);
                 // 如果成功处理且有结果，返回结果
-                if (result != null) {
-                    return result;
-                }
+                return fileGroupInfoList.stream()
+                        .filter(item -> ObjectUtil.isNotEmpty(item.getOfdFilePath())
+                                && ObjectUtil.isNotEmpty(item.getXmlFilePath())
+                                && ObjectUtil.isNotEmpty(item.getPdfFilePath()))
+                        .collect(Collectors.toList());
             } catch (Exception e) {
                 // 记录日志但继续尝试下一种编码
                 System.err.println("尝试使用编码 " + charset.name() + " 处理ZIP文件失败: " + e.getMessage());
