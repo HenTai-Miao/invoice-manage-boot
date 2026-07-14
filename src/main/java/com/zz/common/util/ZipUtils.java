@@ -1,6 +1,7 @@
 package com.zz.common.util;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.zz.common.error.ZipFilenameEncodingException;
 import com.zz.modules.invoicemanage.request.dto.ExtractedFileInfo;
 import com.zz.modules.invoicemanage.request.dto.FileGroupInfo;
 
@@ -8,11 +9,15 @@ import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.nio.file.Files;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
@@ -21,6 +26,10 @@ import java.util.HashMap;
  * 用于解压包含XML文件的ZIP包
  */
 public class ZipUtils {
+
+    private static final int MAX_ZIP_ENTRIES = 2000;
+    private static final long MAX_ENTRY_UNCOMPRESSED_BYTES = 100L * 1024 * 1024;
+    private static final long MAX_TOTAL_UNCOMPRESSED_BYTES = 200L * 1024 * 1024;
 
     /**
      * 解压ZIP文件并返回其中的XML文件内容
@@ -492,31 +501,35 @@ public class ZipUtils {
         // 尝试多种编码方式，按优先级排序
         Charset[] charsetsToTry = {
             StandardCharsets.UTF_8,
-            Charset.forName("GBK"),
-            Charset.forName("GB2312"),
-            Charset.defaultCharset()
+            Charset.forName("GBK")
         };
         
-        for (Charset charset : charsetsToTry) {
+        for (int charsetIndex = 0; charsetIndex < charsetsToTry.length; charsetIndex++) {
+            Charset charset = charsetsToTry[charsetIndex];
+            Path attemptDirectory = Files.createTempDirectory(destDirectory, "zip-charset-");
             try {
-                List<FileGroupInfo> fileGroupInfoList = extractFileGroupsWithCharset(new ByteArrayInputStream(zipData), destDirectory, charset);
+                List<FileGroupInfo> fileGroupInfoList = extractFileGroupsWithCharset(
+                        new ByteArrayInputStream(zipData), attemptDirectory, charset);
                 // 如果成功处理且有结果，返回结果
                 return fileGroupInfoList.stream()
                         .filter(item -> ObjectUtil.isNotEmpty(item.getOfdFilePath())
                                 && ObjectUtil.isNotEmpty(item.getXmlFilePath())
                                 && ObjectUtil.isNotEmpty(item.getPdfFilePath()))
                         .collect(Collectors.toList());
-            } catch (Exception e) {
-                // 记录日志但继续尝试下一种编码
-                System.err.println("尝试使用编码 " + charset.name() + " 处理ZIP文件失败: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                if (!isFilenameDecodingError(e)) {
+                    throw e;
+                }
+                deleteDirectoryRecursively(attemptDirectory);
                 // 如果是最后一种编码，重新抛出异常
-                if (charset == charsetsToTry[charsetsToTry.length - 1]) {
-                    throw new IOException("无法使用任何支持的编码处理ZIP文件", e);
+                if (charsetIndex == charsetsToTry.length - 1) {
+                    throw new ZipFilenameEncodingException(e);
                 }
             }
         }
         
-        throw new IOException("无法使用任何支持的编码处理ZIP文件");
+        throw new ZipFilenameEncodingException(
+                new IllegalArgumentException("No ZIP filename charset attempts configured"));
     }
     
     /**
@@ -536,10 +549,16 @@ public class ZipUtils {
         
         // 用于存储文件信息的Map，key为分组标识
         Map<String, FileGroupInfo> fileGroups = new HashMap<>();
+        int entryCount = 0;
+        long totalUncompressedBytes = 0L;
 
         try (ZipInputStream zis = new ZipInputStream(inputStream, charset)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
+                entryCount++;
+                if (entryCount > MAX_ZIP_ENTRIES) {
+                    throw new IOException("ZIP文件包含过多条目");
+                }
                 // 安全地获取条目名称
                 String entryName = getSafeEntryName(entry, charset);
                 if (entryName == null) {
@@ -568,7 +587,14 @@ public class ZipUtils {
                     try (OutputStream os = Files.newOutputStream(filePath)) {
                         byte[] buffer = new byte[1024];
                         int bytesRead;
+                        long entryUncompressedBytes = 0L;
                         while ((bytesRead = zis.read(buffer)) != -1) {
+                            entryUncompressedBytes += bytesRead;
+                            totalUncompressedBytes += bytesRead;
+                            if (entryUncompressedBytes > MAX_ENTRY_UNCOMPRESSED_BYTES ||
+                                    totalUncompressedBytes > MAX_TOTAL_UNCOMPRESSED_BYTES) {
+                                throw new IOException("ZIP文件解压后过大");
+                            }
                             os.write(buffer, 0, bytesRead);
                         }
                     }
@@ -627,6 +653,39 @@ public class ZipUtils {
         return fileGroups.values().stream()
                 .filter(FileGroupInfo::isValid)
                 .collect(Collectors.toList());
+    }
+
+    private static boolean isFilenameDecodingError(IllegalArgumentException error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof MalformedInputException) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    private static void deleteDirectoryRecursively(Path directory) throws IOException {
+        if (!Files.exists(directory)) {
+            return;
+        }
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.deleteIfExists(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException error) throws IOException {
+                if (error != null) {
+                    throw error;
+                }
+                Files.deleteIfExists(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
     
     /**

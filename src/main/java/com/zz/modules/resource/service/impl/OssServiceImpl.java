@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zz.common.constant.InvoiceInfoConstant;
 import com.zz.common.constant.OssMinioConstant;
 import com.zz.common.error.ServiceException;
+import com.zz.common.error.ZipFilenameEncodingException;
 import com.zz.common.menus.SubjectType;
 import com.zz.common.util.ZipUtils;
 import com.zz.modules.invoicemanage.converter.InvoiceInfoConverter;
@@ -139,6 +140,9 @@ public class OssServiceImpl implements IOssService {
                     IInvoiceInfoService.save(invoiceInfoEntity);
                 }
             }
+        } catch (ZipFilenameEncodingException e) {
+            log.error("ZIP文件名编码不兼容: ", e);
+            throw new ServiceException(e.getMessage(), e);
         } catch (Exception e) {
             log.error("处理ZIP文件时出错: ", e);
             throw new ServiceException("处理ZIP文件时出错");
